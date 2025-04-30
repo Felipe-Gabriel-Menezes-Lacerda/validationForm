@@ -38,10 +38,20 @@ class _CadastroFormState extends State<CadastroForm> {
 
   void _cadastrar() {
     // TODO: Implementar validação dos campos e exibir SnackBar com nome do usuário
-    if(_formKey.currentState!.validate() || _aceitaTermos == true){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text('Login Realizado com Sucesso!')));
+    if (_formKey.currentState!.validate() && _aceitaTermos == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login Realizado com Sucesso!')));
+      NavegarParaTelaDeConfmacao();
     };
+    if (_aceitaTermos == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não é possível realizar o cadastro, pois é necessário aceitar os termos')));
     
+    };
+       if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não é possível realizar o cadastro, pois existem campos inválidos')));
+    };
   }
 
   void _limparCampos() {
@@ -51,8 +61,18 @@ class _CadastroFormState extends State<CadastroForm> {
     _emailController.clear();
     _senhaController.clear();
     _confirmaSenhaController.clear();
-     _formKey.currentState!.reset();
-     setState((){_aceitaTermos = false;});
+    _formKey.currentState!.reset();
+    setState(() {
+      _aceitaTermos = false;
+    });
+  }
+
+  void NavegarParaTelaDeConfmacao() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                TelaDeConfirmacao(name: _nomeController.text)));
   }
 
   @override
@@ -66,6 +86,13 @@ class _CadastroFormState extends State<CadastroForm> {
             decoration: InputDecoration(labelText: 'Nome completo'),
             validator: (value) {
               // TODO: Validar nome (obrigatório e mínimo 3 caracteres)
+              if(value == null || value.isEmpty){
+                return 'O nome é um campo obrigatório';
+              
+              }
+              if(value.length < 3){
+                return 'O nome deve conter pelo menos 3 caracteres';
+              }
               return null;
             },
           ),
@@ -113,7 +140,7 @@ class _CadastroFormState extends State<CadastroForm> {
               if (value == null || value.isEmpty) {
                 return 'Esse campo é obrigatório';
               }
-              if (_confirmaSenhaController != _senhaController) {
+              if (value != _senhaController.text) {
                 return 'A senha deve ser igual nos dois campos';
               }
               return null;
@@ -147,5 +174,31 @@ class _CadastroFormState extends State<CadastroForm> {
         ],
       ),
     );
+  }
+}
+
+class TelaDeConfirmacao extends StatelessWidget {
+  final String name;
+
+  TelaDeConfirmacao({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text('Cadastro REalizado com sucesso!'),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                })),
+        body: Center(
+          child: Text(
+            'Seja bem vindo $name cadastro realizado com sucesso!',
+            style: TextStyle(
+              fontSize: 24,
+            ),
+          ),
+        ));
   }
 }
